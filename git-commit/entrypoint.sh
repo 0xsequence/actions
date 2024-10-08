@@ -20,12 +20,12 @@ fi
 
 if [ -z "$INPUT_PR_TITLE" ]
 then
-  PR_TITLE="Automatic update from: ${GITHUB_REPOSITORY}"
+  INPUT_PR_TITLE="Automatic update from: ${GITHUB_REPOSITORY}"
 fi
 
 if [ -z "$INPUT_PR_DESCRIPTION" ]
 then
-  PR_DESCRIPTION=${INPUT_COMMIT_MESSAGE}
+  INPUT_PR_DESCRIPTION=${INPUT_COMMIT_MESSAGE}
 fi
 
 echo "Printing environment variables"
@@ -64,12 +64,12 @@ then
 
   if [ "$INPUT_PR_CREATE" == "true" ]
   then
-    PR_DESCRIPTION_ESCAPED="${PR_DESCRIPTION//$'\n'/\\n}"
+    PR_DESCRIPTION_ESCAPED="${INPUT_PR_DESCRIPTION//$'\n'/\\n}"
 
     curl --connect-timeout 10 \
       -u "${INPUT_USER_NAME}:${API_TOKEN_GITHUB}" \
       -X POST -H 'Content-Type: application/json' \
-      --data "{\"head\":\"$OUTPUT_BRANCH\",\"base\":\"${INPUT_PR_BASE}\", \"title\": \"${PR_TITLE}\", \"body\": \"${PR_DESCRIPTION_ESCAPED}\"}" \
+      --data "{\"head\":\"$OUTPUT_BRANCH\",\"base\":\"${INPUT_PR_BASE}\", \"title\": \"${INPUT_PR_TITLE}\", \"body\": \"${PR_DESCRIPTION_ESCAPED}\"}" \
       "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls"
   fi
 else
