@@ -25,3 +25,4 @@ jobs:
           dst_branch: 'git-commit-test'
           user_email: 'lj@horizon.io'
           pr_create: 'true'
+          pr_base: 'git_commit'
