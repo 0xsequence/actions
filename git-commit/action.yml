@@ -10,12 +10,15 @@ inputs:
   dst_branch:
     description: 'Destination branch'
     required: true
-  user_email:
-    description: 'Email for the git commit. Defaults to commit author email'
-    required: false
+  # See https://api.github.com/users/github-actions%5Bbot%5D
   user_name:
     description: 'GitHub username for the commit. Defaults to GITHUB_ACTOR'
     required: false
+    default: 'github-actions[bot]'
+  user_email:
+    description: 'Email for the git commit. Defaults to commit author email'
+    required: false
+    default: '41898282+github-actions[bot]@users.noreply.github.com'
   repository:
     description: 'Destination repository, if not provided it will commit back to the same repo'
     required: false

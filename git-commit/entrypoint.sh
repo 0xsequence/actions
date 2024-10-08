@@ -8,16 +8,6 @@ then
   INPUT_REPOSITORY="${GITHUB_REPOSITORY}"
 fi
 
-if [ -z "$INPUT_USER_NAME" ]
-then
-  INPUT_USER_NAME="${GITHUB_ACTOR}"
-fi
-
-if [ -z "$INPUT_USER_EMAIL" ]
-then
-  INPUT_USER_EMAIL=`git log -1 --pretty=format:'%ae'`
-fi
-
 if [ -z "$INPUT_COMMIT_MESSAGE" ]
 then
   INPUT_COMMIT_MESSAGE="Generated from https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
@@ -37,8 +27,6 @@ if [ -z "$INPUT_DST_BRANCH" ]
 then
   INPUT_DST_BRANCH=${GITHUB_HEAD_REF}
 fi
-
-echo $INPUT_USER_EMAIL
 
 CLONE_DIR=$(mktemp -d)
 
