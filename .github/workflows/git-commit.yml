@@ -15,6 +15,9 @@ jobs:
       - name: Mark test file
         run: |
           echo $GITHUB_SHA > test02.md
+          mkdir docs
+          echo $GITHUB_SHA > docs/test01.md
+          echo $GITHUB_SHA > docs/test02.md
 
       - name: Push changed file
         uses: ./git-commit
@@ -23,6 +26,18 @@ jobs:
         with:
           src: 'test02.md'
           dst_branch: 'git-commit-test'
+          user_email: 'lj@horizon.io'
+          pr_create: 'true'
+          pr_base: 'git_commit'
+
+      - name: Push multiple files
+        uses: ./git-commit
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          src: 'docs/*.md'
+          dst: 'docs/'
+          dst_branch: 'multiple-files'
           user_email: 'lj@horizon.io'
           pr_create: 'true'
           pr_base: 'git_commit'

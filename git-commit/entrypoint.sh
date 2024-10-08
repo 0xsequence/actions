@@ -39,9 +39,13 @@ git config --global user.name "$INPUT_USER_NAME"
 git clone --branch "$GITHUB_HEAD_REF" "https://x-access-token:$API_TOKEN_GITHUB@github.com/$INPUT_REPOSITORY.git" "$CLONE_DIR"
 
 DEST_COPY="$CLONE_DIR/$INPUT_DST"
+if [ "$INPUT_DST" != "" ]
+then
+  mkdir -p $DEST_COPY
+fi
 
 echo "Copying contents to git repo"
-cp -R "$INPUT_SRC" "$DEST_COPY"
+cp -R $INPUT_SRC "$DEST_COPY"
 
 cd "$CLONE_DIR"
 
