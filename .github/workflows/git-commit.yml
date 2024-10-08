@@ -20,6 +20,7 @@ jobs:
           echo $GITHUB_SHA > docs/test02.md
           mkdir docs-test-folder
           echo $GITHUB_SHA > docs-test-folder/test01.md
+          echo $(pwd)
 
       - name: Push specific file
         uses: ./git-commit
@@ -44,7 +45,6 @@ jobs:
           user_email: 'lj@horizon.io'
           pr_create: 'true'
           pr_base: 'master'
-          pr_title: "Push specific folder: ${{ github.repository }}"
 
       - name: Push multiple files
         uses: ./git-commit
@@ -57,4 +57,3 @@ jobs:
           user_email: 'lj@horizon.io'
           pr_create: 'true'
           pr_base: 'master'
-          pr_title: "Push multiple files: ${{ github.repository }}"

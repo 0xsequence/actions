@@ -33,15 +33,19 @@ then
   INPUT_DST_BRANCH=${GITHUB_HEAD_REF}
 fi
 
-echo "Printing environment variables"
-printenv
-
 CLONE_DIR=$(mktemp -d)
 
 echo "Cloning destination git repository"
 git config --global user.email "$INPUT_USER_EMAIL"
 git config --global user.name "$INPUT_USER_NAME"
 git clone "https://x-access-token:$API_TOKEN_GITHUB@github.com/$INPUT_REPOSITORY.git" "$CLONE_DIR"
+
+BASE_DIR=$(pwd)
+cd "$CLONE_DIR"
+
+echo "Creating new branch: ${INPUT_DST_BRANCH}"
+git checkout -b "$INPUT_DST_BRANCH"
+git reset --hard "origin/$INPUT_DST_BRANCH"  || true
 
 DEST_COPY="$CLONE_DIR/$INPUT_DST"
 if [ "$INPUT_DST" != "" ]
@@ -50,14 +54,7 @@ then
 fi
 
 echo "Copying contents to git repo"
-cp -R $INPUT_SRC "$DEST_COPY"
-
-cd "$CLONE_DIR"
-
-echo "Creating new branch: ${INPUT_DST_BRANCH}"
-git checkout -b "$INPUT_DST_BRANCH"
-git reset --hard "origin/$INPUT_DST_BRANCH"  || true
-OUTPUT_BRANCH="$INPUT_DST_BRANCH"
+cp -R $BASE_DIR/$INPUT_SRC "$DEST_COPY"
 
 echo "Adding git commit"
 git add .
@@ -65,7 +62,7 @@ if git status | grep -q "Changes to be committed"
 then
   git commit --message "$INPUT_COMMIT_MESSAGE"
   echo "Pushing git commit"
-  git push -u origin HEAD:"$OUTPUT_BRANCH"
+  git push -u origin HEAD:"$INPUT_DST_BRANCH"
 
   if [ "$INPUT_PR_CREATE" == "true" ]
   then
@@ -74,7 +71,7 @@ then
     curl --connect-timeout 10 \
       -u "${INPUT_USER_NAME}:${API_TOKEN_GITHUB}" \
       -X POST -H 'Content-Type: application/json' \
-      --data "{\"head\":\"$OUTPUT_BRANCH\",\"base\":\"${INPUT_PR_BASE}\", \"title\": \"${INPUT_PR_TITLE}\", \"body\": \"${PR_DESCRIPTION_ESCAPED}\"}" \
+      --data "{\"head\":\"$INPUT_DST_BRANCH\",\"base\":\"${INPUT_PR_BASE}\", \"title\": \"${INPUT_PR_TITLE}\", \"body\": \"${PR_DESCRIPTION_ESCAPED}\"}" \
       "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls"
   fi
 else
