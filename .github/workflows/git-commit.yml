@@ -21,16 +21,17 @@ jobs:
           mkdir docs-test-folder
           echo $GITHUB_SHA > docs-test-folder/test01.md
 
-      - name: Push specifc file
+      - name: Push specific file
         uses: ./git-commit
         env:
           API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
         with:
           src: 'test02.md'
-          dst_branch: 'git-commit-test'
+          dst_branch: 'git-commit-file'
           user_email: 'lj@horizon.io'
           pr_create: 'true'
           pr_base: 'master'
+          pr_title: "Push specific file: ${GITHUB_REPOSITORY}"
 
       - name: Push specific folder
         uses: ./git-commit
@@ -39,10 +40,11 @@ jobs:
         with:
           src: 'docs-test-folder/'
           dst: 'docs-test-folder/'
-          dst_branch: 'folder'
+          dst_branch: 'git-commit-folder'
           user_email: 'lj@horizon.io'
           pr_create: 'true'
           pr_base: 'master'
+          pr_title: 'Push specific folder: ${GITHUB_REPOSITORY}'
 
       - name: Push multiple files
         uses: ./git-commit
@@ -51,7 +53,8 @@ jobs:
         with:
           src: 'docs/*.md'
           dst: 'docs/'
-          dst_branch: 'multiple-files'
+          dst_branch: 'git-commit-multiple-files'
           user_email: 'lj@horizon.io'
           pr_create: 'true'
           pr_base: 'master'
+          pr_title: 'Push multiple files: ${GITHUB_REPOSITORY}'
