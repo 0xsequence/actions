@@ -39,7 +39,7 @@ jobs:
         with:
           src: 'docs-test-folder/'
           dst: 'docs-test-folder/'
-          dst_branch: 'multiple-files'
+          dst_branch: 'folder'
           user_email: 'lj@horizon.io'
           pr_create: 'true'
           pr_base: 'master'
