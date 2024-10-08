@@ -29,7 +29,6 @@ jobs:
         with:
           src: 'test02.md'
           dst_branch: 'git-commit-file'
-          user_email: 'lj@horizon.io'
           pr_create: 'true'
           pr_base: 'master'
           pr_title: "Push specific file: ${{ github.repository }}"
@@ -42,7 +41,6 @@ jobs:
           src: 'docs-test-folder/'
           dst: 'docs-test-folder/'
           dst_branch: 'git-commit-folder'
-          user_email: 'lj@horizon.io'
           pr_create: 'true'
           pr_base: 'master'
 
@@ -54,6 +52,5 @@ jobs:
           src: 'docs/*.md'
           dst: 'docs/'
           dst_branch: 'git-commit-multiple-files'
-          user_email: 'lj@horizon.io'
           pr_create: 'true'
           pr_base: 'master'

@@ -11,8 +11,8 @@ inputs:
     description: 'Destination branch'
     required: true
   user_email:
-    description: 'Email for the git commit'
-    required: true
+    description: 'Email for the git commit. Defaults to commit author email'
+    required: false
   user_name:
     description: 'GitHub username for the commit. Defaults to GITHUB_ACTOR'
     required: false

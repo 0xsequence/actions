@@ -13,6 +13,11 @@ then
   INPUT_USER_NAME="${GITHUB_ACTOR}"
 fi
 
+if [ -z "$INPUT_USER_EMAIL" ]
+then
+  INPUT_USER_EMAIL=`git log -1 --pretty=format:'%ae'`
+fi
+
 if [ -z "$INPUT_COMMIT_MESSAGE" ]
 then
   INPUT_COMMIT_MESSAGE="Generated from https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
@@ -33,11 +38,13 @@ then
   INPUT_DST_BRANCH=${GITHUB_HEAD_REF}
 fi
 
+echo $INPUT_USER_EMAIL
+
 CLONE_DIR=$(mktemp -d)
 
 echo "Cloning destination git repository"
-git config --global user.email "$INPUT_USER_EMAIL"
 git config --global user.name "$INPUT_USER_NAME"
+git config --global user.email "$INPUT_USER_EMAIL"
 git clone "https://x-access-token:$API_TOKEN_GITHUB@github.com/$INPUT_REPOSITORY.git" "$CLONE_DIR"
 
 BASE_DIR=$(pwd)
