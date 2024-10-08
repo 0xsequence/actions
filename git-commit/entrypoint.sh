@@ -13,6 +13,21 @@ then
   INPUT_USER_NAME="${GITHUB_ACTOR}"
 fi
 
+if [ -z "$INPUT_COMMIT_MESSAGE" ]
+then
+  INPUT_COMMIT_MESSAGE="Generated from https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
+fi
+
+if [ -z "$INPUT_PR_TITLE" ]
+then
+  PR_TITLE="Automatic update from: ${GITHUB_REPOSITORY}"
+fi
+
+if [ -z "$INPUT_PR_DESCRIPTION" ]
+then
+  PR_DESCRIPTION=${INPUT_COMMIT_MESSAGE}
+fi
+
 echo "Printing environment variables"
 printenv
 
@@ -35,11 +50,6 @@ git checkout -b "$INPUT_DST_BRANCH"
 git reset --hard "origin/$INPUT_DST_BRANCH"  || true
 OUTPUT_BRANCH="$INPUT_DST_BRANCH"
 
-if [ -z "$INPUT_COMMIT_MESSAGE" ]
-then
-  INPUT_COMMIT_MESSAGE="Update from https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
-fi
-
 echo "Adding git commit"
 git add .
 if git status | grep -q "Changes to be committed"
@@ -48,15 +58,14 @@ then
   echo "Pushing git commit"
   git push -u origin HEAD:"$OUTPUT_BRANCH"
 
-  if [ "$INPUT_CREATE_PR" == "true" ]
+  if [ "$INPUT_PR_CREATE" == "true" ]
   then
-    PR_TITLE=${INPUT_COMMIT_MESSAGE}
-    PR_DESCRIPTION=${INPUT_COMMIT_MESSAGE}
     PR_DESCRIPTION_ESCAPED="${PR_DESCRIPTION//$'\n'/\\n}"
+
     curl --connect-timeout 10 \
       -u "${INPUT_USER_NAME}:${API_TOKEN_GITHUB}" \
       -X POST -H 'Content-Type: application/json' \
-      --data "{\"head\":\"$OUTPUT_BRANCH\",\"base\":\"master\", \"title\": \"${PR_TITLE}\", \"body\": \"${PR_DESCRIPTION_ESCAPED}\"}" \
+      --data "{\"head\":\"$OUTPUT_BRANCH\",\"base\":\"${INPUT_PR_BASE}\", \"title\": \"${PR_TITLE}\", \"body\": \"${PR_DESCRIPTION_ESCAPED}\"}" \
       "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls"
   fi
 else

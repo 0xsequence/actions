@@ -22,16 +22,20 @@ inputs:
   commit_message:
     description: 'A custom message for the commit'
     required: false
-  create_pr:
-    description: 'Create pull request if changes are succesfully commited'
+  pr_create:
+    description: 'Create pull request automatically if changes are successfully commited'
     required: false
     default: "false"
   pr_title:
-    description: 'Pull request title.'
+    description: 'Pull request title'
     required: false
   pr_description:
-    description: 'Pull request description.'
+    description: 'Pull request description'
     required: false
+  pr_base:
+    description: 'Create pull request again specific base. Defaults to master branch'
+    required: false
+    default: 'master'
 runs:
   using: 'docker'
   image: 'Dockerfile'

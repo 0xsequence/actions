@@ -24,4 +24,4 @@ jobs:
           src: 'test02.md'
           dst_branch: 'git-commit-test'
           user_email: 'lj@horizon.io'
-          create_pr: 'true'
+          pr_create: 'true'
