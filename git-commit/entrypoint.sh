@@ -20,12 +20,17 @@ fi
 
 if [ -z "$INPUT_PR_TITLE" ]
 then
-  PR_TITLE="Automatic update from: ${GITHUB_REPOSITORY}"
+  INPUT_PR_TITLE="Automatic update from: ${GITHUB_REPOSITORY}"
 fi
 
 if [ -z "$INPUT_PR_DESCRIPTION" ]
 then
-  PR_DESCRIPTION=${INPUT_COMMIT_MESSAGE}
+  INPUT_PR_DESCRIPTION=${INPUT_COMMIT_MESSAGE}
+fi
+
+if [ -z "$INPUT_DST_BRANCH" ]
+then
+  INPUT_DST_BRANCH=${GITHUB_HEAD_REF}
 fi
 
 echo "Printing environment variables"
@@ -36,7 +41,7 @@ CLONE_DIR=$(mktemp -d)
 echo "Cloning destination git repository"
 git config --global user.email "$INPUT_USER_EMAIL"
 git config --global user.name "$INPUT_USER_NAME"
-git clone --branch "$GITHUB_HEAD_REF" "https://x-access-token:$API_TOKEN_GITHUB@github.com/$INPUT_REPOSITORY.git" "$CLONE_DIR"
+git clone "https://x-access-token:$API_TOKEN_GITHUB@github.com/$INPUT_REPOSITORY.git" "$CLONE_DIR"
 
 DEST_COPY="$CLONE_DIR/$INPUT_DST"
 if [ "$INPUT_DST" != "" ]
@@ -64,12 +69,12 @@ then
 
   if [ "$INPUT_PR_CREATE" == "true" ]
   then
-    PR_DESCRIPTION_ESCAPED="${PR_DESCRIPTION//$'\n'/\\n}"
+    PR_DESCRIPTION_ESCAPED="${INPUT_PR_DESCRIPTION//$'\n'/\\n}"
 
     curl --connect-timeout 10 \
       -u "${INPUT_USER_NAME}:${API_TOKEN_GITHUB}" \
       -X POST -H 'Content-Type: application/json' \
-      --data "{\"head\":\"$OUTPUT_BRANCH\",\"base\":\"${INPUT_PR_BASE}\", \"title\": \"${PR_TITLE}\", \"body\": \"${PR_DESCRIPTION_ESCAPED}\"}" \
+      --data "{\"head\":\"$OUTPUT_BRANCH\",\"base\":\"${INPUT_PR_BASE}\", \"title\": \"${INPUT_PR_TITLE}\", \"body\": \"${PR_DESCRIPTION_ESCAPED}\"}" \
       "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls"
   fi
 else
