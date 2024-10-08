@@ -22,6 +22,16 @@ inputs:
   commit_message:
     description: 'A custom message for the commit'
     required: false
+  create_pr:
+    description: 'Create pull request if changes are succesfully commited'
+    required: false
+    default: "false"
+  pr_title:
+    description: 'Pull request title.'
+    required: false
+  pr_description:
+    description: 'Pull request description.'
+    required: false
 runs:
   using: 'docker'
   image: 'Dockerfile'

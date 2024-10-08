@@ -2,7 +2,7 @@ FROM alpine
 
 RUN apk update && \
     apk upgrade && \
-    apk add git
+    apk add git curl
 
 ADD ./entrypoint.sh /entrypoint.sh
 

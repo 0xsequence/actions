@@ -21,7 +21,7 @@ CLONE_DIR=$(mktemp -d)
 echo "Cloning destination git repository"
 git config --global user.email "$INPUT_USER_EMAIL"
 git config --global user.name "$INPUT_USER_NAME"
-git clone --single-branch --branch "$GITHUB_HEAD_REF" "https://x-access-token:$API_TOKEN_GITHUB@github.com/$INPUT_REPOSITORY.git" "$CLONE_DIR"
+git clone --branch "$GITHUB_HEAD_REF" "https://x-access-token:$API_TOKEN_GITHUB@github.com/$INPUT_REPOSITORY.git" "$CLONE_DIR"
 
 DEST_COPY="$CLONE_DIR/$INPUT_DST"
 
@@ -32,6 +32,7 @@ cd "$CLONE_DIR"
 
 echo "Creating new branch: ${INPUT_DST_BRANCH}"
 git checkout -b "$INPUT_DST_BRANCH"
+git reset --hard "origin/$INPUT_DST_BRANCH"  || true
 OUTPUT_BRANCH="$INPUT_DST_BRANCH"
 
 if [ -z "$INPUT_COMMIT_MESSAGE" ]
@@ -46,6 +47,18 @@ then
   git commit --message "$INPUT_COMMIT_MESSAGE"
   echo "Pushing git commit"
   git push -u origin HEAD:"$OUTPUT_BRANCH"
+
+  if [ "$INPUT_CREATE_PR" == "true" ]
+  then
+    PR_TITLE=${INPUT_COMMIT_MESSAGE}
+    PR_DESCRIPTION=${INPUT_COMMIT_MESSAGE}
+    PR_DESCRIPTION_ESCAPED="${PR_DESCRIPTION//$'\n'/\\n}"
+    curl --connect-timeout 10 \
+      -u "${INPUT_USER_NAME}:${API_TOKEN_GITHUB}" \
+      -X POST -H 'Content-Type: application/json' \
+      --data "{\"head\":\"$OUTPUT_BRANCH\",\"base\":\"master\", \"title\": \"${PR_TITLE}\", \"body\": \"${PR_DESCRIPTION_ESCAPED}\"}" \
+      "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls"
+  fi
 else
   echo "No changes detected"
 fi
