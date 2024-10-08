@@ -1,0 +1,38 @@
+name: 'Git commit'
+description: 'Commit changed file to destination repository'
+inputs:
+  src:
+    description: 'Source file from the origin directory. Can be a file, glob (`*.json`) or folder'
+    required: true
+  dst:
+    description: 'Directory to push the source to. Defaults to same folder as the source input'
+    required: false
+  dst_branch:
+    description: 'Destination branch'
+    required: true
+  user_email:
+    description: 'Email for the git commit'
+    required: true
+  user_name:
+    description: 'GitHub username for the commit. Defaults to GITHUB_ACTOR'
+    required: false
+  repository:
+    description: 'Destination repository, if not provided it will commit back to the same repo'
+    required: false
+  commit_message:
+    description: 'A custom message for the commit'
+    required: false
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.src }}
+    - ${{ inputs.dst }}
+    - ${{ inputs.user-email }}
+    - ${{ inputs.user-name }}
+    - ${{ inputs.repository }}
+    - ${{ inputs.branch }}
+    - ${{ inputs.commit-message }}
+branding:
+  icon: 'git-commit'
+  color: 'green'

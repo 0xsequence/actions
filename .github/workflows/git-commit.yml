@@ -1,0 +1,26 @@
+name: Git commit
+
+on: [pull_request]
+
+env:
+  sha: $GITHUB_SHA
+
+jobs:
+  git-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Mark test file
+        run: |
+          echo $GITHUB_SHA > test02.md
+
+      - name: Push changed file
+        uses: ./git-commit
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          src: 'test02.md'
+          dst_branch: 'git-commit-test'
+          user_email: 'lj@horizon.io'
