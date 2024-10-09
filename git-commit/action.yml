@@ -26,7 +26,6 @@ inputs:
   pr_create:
     description: 'Create pull request automatically if changes are successfully commited'
     required: false
-    default: "false"
   pr_title:
     description: 'Pull request title'
     required: false

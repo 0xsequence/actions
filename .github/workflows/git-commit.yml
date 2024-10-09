@@ -29,7 +29,7 @@ jobs:
         with:
           src: 'test02.md'
           branch: 'git-commit-file'
-          pr_create: 'true'
+          pr_create: true
           pr_base: 'master'
           pr_title: "Push specific file: ${{ github.repository }}"
 
@@ -41,7 +41,7 @@ jobs:
           src: 'docs-test-folder/'
           dst: 'docs-test-folder/'
           branch: 'git-commit-folder'
-          pr_create: 'true'
+          pr_create: true
           pr_base: 'master'
 
       - name: Push multiple files
@@ -52,5 +52,5 @@ jobs:
           src: 'docs/*.md'
           dst: 'docs/'
           branch: 'git-commit-multiple-files'
-          pr_create: 'true'
+          pr_create: true
           pr_base: 'master'
