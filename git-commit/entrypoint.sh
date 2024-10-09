@@ -15,7 +15,7 @@ fi
 
 if [ -z "$INPUT_PR_TITLE" ]
 then
-  INPUT_PR_TITLE="${INPUT_COMMIT_MESSAGE}"
+  INPUT_PR_TITLE="[AUTOMATED] Update files from ${GITHUB_REPOSITORY}"
 fi
 
 if [ -z "$INPUT_PR_DESCRIPTION" ]
