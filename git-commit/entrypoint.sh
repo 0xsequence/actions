@@ -74,7 +74,7 @@ then
   echo "Pushing git commit"
   git push -u origin HEAD:"$INPUT_BRANCH"
 
-  if [ "$INPUT_PR_CREATE" == true ]
+  if [ "$INPUT_PR_CREATE" = true ]
   then
     PR_DESCRIPTION_ESCAPED="${INPUT_PR_DESCRIPTION//$'\n'/\\n}"
 
