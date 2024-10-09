@@ -10,17 +10,17 @@ fi
 
 if [ -z "$INPUT_COMMIT_MESSAGE" ]
 then
-  INPUT_COMMIT_MESSAGE="[AUTOMATED] Files: $INPUT_SRC"
+  INPUT_COMMIT_MESSAGE="[AUTOMATED] Update: ${INPUT_SRC}"
 fi
 
 if [ -z "$INPUT_PR_TITLE" ]
 then
-  INPUT_PR_TITLE="[AUTOMATED] Update from: ${GITHUB_REPOSITORY}"
+  INPUT_PR_TITLE="${INPUT_COMMIT_MESSAGE}"
 fi
 
 if [ -z "$INPUT_PR_DESCRIPTION" ]
 then
-  INPUT_PR_DESCRIPTION="Generated from https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
+  INPUT_PR_DESCRIPTION="Triggered by https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
 fi
 
 if [ -z "$INPUT_DST_BRANCH" ]
@@ -30,7 +30,7 @@ fi
 
 if [ -z "$INPUT_USER_NAME" ]
 then
-  INPUT_USER_NAME="sequence[bot]"
+  INPUT_USER_NAME="${GITHUB_ACTOR}"
 fi
 
 if [ -z "$INPUT_USER_EMAIL" ]
@@ -65,7 +65,7 @@ echo "Adding git commit"
 git add .
 if git status | grep -q "Changes to be committed"
 then
-  git commit --message "[AUTOMATED] Update $INPUT_SRC"
+  git commit --message "${INPUT_COMMIT_MESSAGE}"
   echo "Pushing git commit"
   git push -u origin HEAD:"$INPUT_DST_BRANCH"
 
