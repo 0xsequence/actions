@@ -28,7 +28,7 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
         with:
           src: 'test02.md'
-          dst_branch: 'git-commit-file'
+          branch: 'git-commit-file'
           pr_create: 'true'
           pr_base: 'master'
           pr_title: "Push specific file: ${{ github.repository }}"
@@ -40,7 +40,7 @@ jobs:
         with:
           src: 'docs-test-folder/'
           dst: 'docs-test-folder/'
-          dst_branch: 'git-commit-folder'
+          branch: 'git-commit-folder'
           pr_create: 'true'
           pr_base: 'master'
 
@@ -51,6 +51,6 @@ jobs:
         with:
           src: 'docs/*.md'
           dst: 'docs/'
-          dst_branch: 'git-commit-multiple-files'
+          branch: 'git-commit-multiple-files'
           pr_create: 'true'
           pr_base: 'master'

@@ -7,7 +7,7 @@ inputs:
   dst:
     description: 'Directory to push the source to. Defaults to same folder as the source input'
     required: false
-  dst_branch:
+  branch:
     description: 'Destination branch'
     required: true
   # See https://api.github.com/users/github-actions%5Bbot%5D
