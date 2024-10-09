@@ -28,6 +28,16 @@ then
   INPUT_DST_BRANCH=${GITHUB_HEAD_REF}
 fi
 
+if [ -z "$INPUT_USER_NAME" ]
+then
+  INPUT_USER_NAME = "0xSEQUENCE BOT"
+fi
+
+if [ -z "$INPUT_USER_EMAIL" ]
+then
+  INPUT_USER_EMAIL = "$GITHUB_ACTOR_ID+$GITHUB_ACTOR@users.noreply.github.com"
+fi
+
 CLONE_DIR=$(mktemp -d)
 
 echo "Cloning destination git repository"
