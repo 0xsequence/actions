@@ -10,17 +10,17 @@ fi
 
 if [ -z "$INPUT_COMMIT_MESSAGE" ]
 then
-  INPUT_COMMIT_MESSAGE="Generated from https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
+  INPUT_COMMIT_MESSAGE="[AUTOMATED] Files: $INPUT_SRC"
 fi
 
 if [ -z "$INPUT_PR_TITLE" ]
 then
-  INPUT_PR_TITLE="Automatic update from: ${GITHUB_REPOSITORY}"
+  INPUT_PR_TITLE="[AUTOMATED] Update from: ${GITHUB_REPOSITORY}"
 fi
 
 if [ -z "$INPUT_PR_DESCRIPTION" ]
 then
-  INPUT_PR_DESCRIPTION=${INPUT_COMMIT_MESSAGE}
+  INPUT_PR_DESCRIPTION="Generated from https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
 fi
 
 if [ -z "$INPUT_DST_BRANCH" ]
@@ -30,12 +30,12 @@ fi
 
 if [ -z "$INPUT_USER_NAME" ]
 then
-  INPUT_USER_NAME = "0xSEQUENCE BOT"
+  INPUT_USER_NAME="sequence[bot]"
 fi
 
 if [ -z "$INPUT_USER_EMAIL" ]
 then
-  INPUT_USER_EMAIL = "$GITHUB_ACTOR_ID+$GITHUB_ACTOR@users.noreply.github.com"
+  INPUT_USER_EMAIL="$GITHUB_ACTOR_ID+$GITHUB_ACTOR@users.noreply.github.com"
 fi
 
 CLONE_DIR=$(mktemp -d)
@@ -65,7 +65,7 @@ echo "Adding git commit"
 git add .
 if git status | grep -q "Changes to be committed"
 then
-  git commit --message "$INPUT_COMMIT_MESSAGE"
+  git commit --message "[AUTOMATED] Update $INPUT_SRC"
   echo "Pushing git commit"
   git push -u origin HEAD:"$INPUT_DST_BRANCH"
 
