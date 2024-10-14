@@ -43,6 +43,12 @@ then
   INPUT_PR_CREATE=false
 fi
 
+if [ -z "$INPUT_OVERWRITE" ]
+then
+  INPUT_OVERWRITE=false
+fi
+
+
 CLONE_DIR=$(mktemp -d)
 
 echo "Cloning destination git repository"
@@ -64,7 +70,15 @@ then
 fi
 
 echo "Copying contents to git repo"
-cp -R $BASE_DIR/$INPUT_SRC "$DEST_COPY"
+
+if [ "$INPUT_OVERWRITE" = true ]
+then
+  cd "$BASE_DIR"
+  cp -f --parents $INPUT_SRC "$CLONE_DIR"
+  cd $CLONE_DIR
+else
+  cp -R $BASE_DIR/$INPUT_SRC "$DEST_COPY"
+fi
 
 echo "Adding git commit"
 git add .

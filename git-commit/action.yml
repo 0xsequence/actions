@@ -36,6 +36,9 @@ inputs:
     description: 'Create pull request again specific base. Defaults to master branch'
     required: false
     default: 'master'
+  overwrite:
+    description: 'Overwrite'
+    required: false
 runs:
   using: 'docker'
   image: 'Dockerfile'
