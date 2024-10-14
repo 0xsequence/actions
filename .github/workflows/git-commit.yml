@@ -15,12 +15,25 @@ jobs:
       - name: Mark test file
         run: |
           echo $GITHUB_SHA > test02.md
-          mkdir docs
+          mkdir -p docs/1/2
           echo $GITHUB_SHA > docs/test01.md
           echo $GITHUB_SHA > docs/test02.md
           mkdir docs-test-folder
           echo $GITHUB_SHA > docs-test-folder/test01.md
-          echo $(pwd)
+          echo $GITHUB_SHA > git-commit/examples/1/openapi.gen.yaml
+          echo $GITHUB_SHA > git-commit/examples/2/openapi.gen.yaml
+
+      - name: Overwrite
+        uses: ./git-commit
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          src: 'git-commit/examples/**/*.gen.yaml'
+          overwrite: true
+          branch: 'git-commit-glob'
+          pr_create: true
+          pr_base: 'master'
+          pr_title: "Overwrite: ${{ github.repository }}"
 
       - name: Push specific file
         uses: ./git-commit
