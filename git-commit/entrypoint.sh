@@ -70,12 +70,13 @@ fi
 
 if [ "$INPUT_OVERWRITE" = true ]
 then
-  cp --parents -f $INPUT_SRC $CLONE_DIR
+  cd $BASE_DIR
+  ls -la "git-commit/examples"
+  cp -Rf --parents $INPUT_SRC $CLONE_DIR
 else
   echo "Copying contents to git repo"
   cp -R $BASE_DIR/$INPUT_SRC "$DEST_COPY"
 fi
-
 
 echo "Adding git commit"
 git add .

@@ -28,7 +28,7 @@ jobs:
         env:
           API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
         with:
-          src: 'git-commit/examples/**/*.gen.yaml'
+          src: 'git-commit/**/*.gen.yaml'
           overwrite: true
           branch: 'git-commit-glob'
           pr_create: true
