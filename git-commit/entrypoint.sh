@@ -48,9 +48,6 @@ then
   INPUT_OVERWRITE=false
 fi
 
-printenv
-
-
 CLONE_DIR=$(mktemp -d)
 
 echo "Cloning destination git repository"
@@ -85,43 +82,47 @@ fi
 
 echo "Adding git commit"
 git add .
-if git status | grep -q "Changes to be committed"
-then
-  git commit --message "${INPUT_COMMIT_MESSAGE}"
-  echo "Pushing git commit"
-  git push -u origin --force HEAD:"$INPUT_BRANCH"
 
-  if [ "$INPUT_PR_CREATE" = true ]
-  then
-    PR_DESCRIPTION_ESCAPED="${INPUT_PR_DESCRIPTION//$'\n'/\\n}"
-
-    curl --connect-timeout 10 \
-      -u "${INPUT_USER_NAME}:${API_TOKEN_GITHUB}" \
-      -X POST -H 'Content-Type: application/json' \
-      --data "{\"head\":\"$INPUT_BRANCH\",\"base\":\"${INPUT_PR_BASE}\", \"title\": \"${INPUT_PR_TITLE}\", \"body\": \"${PR_DESCRIPTION_ESCAPED}\"}" \
-      "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls" | tee response.json
-
-    PR_EXISTS=$(jq -e '.errors' response.json)
-    # assume that pull request already exists
-    if [ $? -eq 0 ]
-    then
-      # list pull requests opened for specific branch
-      # expect maximum 1 branch
-      curl --connect-timeout 10 \
-      -u "${INPUT_USER_NAME}:${API_TOKEN_GITHUB}" \
-      -H 'Content-Type: application/json' \
-      "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls?state=open&head=${GITHUB_REPOSITORY_OWNER}:${INPUT_BRANCH}" | tee pull_requests.json
-
-      cat pull_requests.json
-
-      PR_URL=$(jq '.[0].html_url' pull_requests.json)
-      echo "$PR_URL" >> $GITHUB_STEP_SUMMARY
-      exit 0
-    fi
-
-    PR_URL=$(jq '.[0].html_url' response.json)
-    echo "$PR_URL" >> $GITHUB_STEP_SUMMARY
-  fi
-else
+# Check if there are changes to be committed
+if ! git status | grep -q "Changes to be committed"; then
   echo "No changes detected"
+  exit 0
 fi
+
+git commit --message "${INPUT_COMMIT_MESSAGE}"
+echo "Pushing git commit"
+git push -u origin --force HEAD:"$INPUT_BRANCH"
+
+# Exit early if pull request creation is not needed
+[ "$INPUT_PR_CREATE" != true ] && exit 0
+
+PR_DESCRIPTION_ESCAPED="${INPUT_PR_DESCRIPTION//$'\n'/\\n}"
+
+curl \
+  --connect-timeout 10 \
+  -u "${INPUT_USER_NAME}:${API_TOKEN_GITHUB}" \
+  -X POST -H 'Content-Type: application/json' \
+  --data "{\"head\":\"$INPUT_BRANCH\",\"base\":\"${INPUT_PR_BASE}\", \"title\": \"${INPUT_PR_TITLE}\", \"body\": \"${PR_DESCRIPTION_ESCAPED}\"}" \
+  "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls" | tee response.json
+
+PR_EXISTS=$(jq '.errors' response.json)
+# PR does not exist
+if [ "$PR_EXISTS" = 'null' ]
+then
+  PR_URL=$(jq '.html_url' response.json)
+  echo "- $PR_URL" >> $GITHUB_STEP_SUMMARY
+  exit 0
+fi
+
+# list pull requests opened for specific branch
+# expect maximum 1 branch
+curl \
+  --connect-timeout 10 \
+  -u "${INPUT_USER_NAME}:${API_TOKEN_GITHUB}" \
+  -H 'Content-Type: application/json' \
+  "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls?state=open&head=${GITHUB_REPOSITORY_OWNER}:${INPUT_BRANCH}" | tee pull_requests.json
+
+PR_URL=$(jq '.[0].html_url' pull_requests.json)
+echo "- $PR_URL" >> $GITHUB_STEP_SUMMARY
+
+
