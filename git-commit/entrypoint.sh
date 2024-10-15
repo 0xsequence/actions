@@ -48,6 +48,8 @@ then
   INPUT_OVERWRITE=false
 fi
 
+printenv
+
 
 CLONE_DIR=$(mktemp -d)
 
@@ -97,7 +99,28 @@ then
       -u "${INPUT_USER_NAME}:${API_TOKEN_GITHUB}" \
       -X POST -H 'Content-Type: application/json' \
       --data "{\"head\":\"$INPUT_BRANCH\",\"base\":\"${INPUT_PR_BASE}\", \"title\": \"${INPUT_PR_TITLE}\", \"body\": \"${PR_DESCRIPTION_ESCAPED}\"}" \
-      "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls"
+      "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls" | tee response.json
+
+    PR_EXISTS=$(jq -e '.errors' response.json)
+    # assume that pull request already exists
+    if [ $? -eq 0 ]
+    then
+      # list pull requests opened for specific branch
+      # expect maximum 1 branch
+      curl --connect-timeout 10 \
+      -u "${INPUT_USER_NAME}:${API_TOKEN_GITHUB}" \
+      -H 'Content-Type: application/json' \
+      "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls?state=open&head=${GITHUB_REPOSITORY_OWNER}:${INPUT_BRANCH}" | tee pull_requests.json
+
+      cat pull_requests.json
+
+      PR_URL=$(jq '.[0].html_url' pull_requests.json)
+      echo "$PR_URL" >> $GITHUB_STEP_SUMMARY
+      exit 0
+    fi
+
+    PR_URL=$(jq '.[0].html_url' response.json)
+    echo "$PR_URL" >> $GITHUB_STEP_SUMMARY
   fi
 else
   echo "No changes detected"
