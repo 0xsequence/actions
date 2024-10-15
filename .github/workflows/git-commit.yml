@@ -21,6 +21,12 @@ jobs:
           mkdir docs-test-folder
           echo $GITHUB_SHA > docs-test-folder/test01.md
           echo $(pwd)
+          echo $GITHUB_SHA >> git-commit/examples/1/example.gen.yaml
+          echo $GITHUB_SHA >> git-commit/examples/2/example.gen.yaml
+
+      - name: Mark test file
+        run: |
+          echo "### Git commit action! :rocket:" >> $GITHUB_STEP_SUMMARY
 
       - name: Push specific file
         uses: ./git-commit
@@ -62,7 +68,7 @@ jobs:
         with:
           src: 'git-commit/examples/**/*.gen.yaml'
           branch: 'git-commit-overwrite'
+          pr_title: "Overwrite existing files: ${{ github.repository }}"
           pr_create: true
           pr_base: 'master'
           overwrite: true
-          pr_title: "Overwrite existing files: ${{ github.repository }}"
