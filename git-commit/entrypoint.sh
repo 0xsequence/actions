@@ -62,6 +62,7 @@ cd "$CLONE_DIR"
 echo "Creating new branch: ${INPUT_BRANCH}"
 git checkout -b "$INPUT_BRANCH"
 git reset --hard "origin/$INPUT_BRANCH"  || true
+git rebase -Xours "${INPUT_PR_BASE}"
 
 DEST_COPY="$CLONE_DIR/$INPUT_DST"
 if [ "$INPUT_DST" != "" ]
@@ -86,7 +87,7 @@ if git status | grep -q "Changes to be committed"
 then
   git commit --message "${INPUT_COMMIT_MESSAGE}"
   echo "Pushing git commit"
-  git push -u origin HEAD:"$INPUT_BRANCH"
+  git push -u origin --force HEAD:"$INPUT_BRANCH"
 
   if [ "$INPUT_PR_CREATE" = true ]
   then
