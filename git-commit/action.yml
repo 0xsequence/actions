@@ -4,13 +4,13 @@ inputs:
   src:
     description: 'Source file from the origin directory. Can be a file, glob (`*.json`) or folder'
     required: true
-  dst:
-    description: 'Directory to push the source to. Defaults to same folder as the source input'
-    required: false
   branch:
     description: 'Destination branch'
     required: true
   # See https://api.github.com/users/github-actions%5Bbot%5D
+  dst:
+    description: 'Directory to push the source to. Defaults to same folder as the source input'
+    required: false
   user_name:
     description: 'GitHub username for the commit. Defaults to GITHUB_ACTOR'
     required: false
@@ -36,6 +36,9 @@ inputs:
     description: 'Create pull request again specific base. Defaults to master branch'
     required: false
     default: 'master'
+  overwrite:
+    description: 'Overwrite'
+    required: false
 runs:
   using: 'docker'
   image: 'Dockerfile'

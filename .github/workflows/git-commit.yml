@@ -54,3 +54,15 @@ jobs:
           branch: 'git-commit-multiple-files'
           pr_create: true
           pr_base: 'master'
+
+      - name: Overwrite files
+        uses: ./git-commit
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          src: 'git-commit/examples/**/*.gen.yaml'
+          branch: 'git-commit-overwrite'
+          pr_create: true
+          pr_base: 'master'
+          overwrite: true
+          pr_title: "Overwrite existing files: ${{ github.repository }}"
