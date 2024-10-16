@@ -86,6 +86,22 @@ git add .
 # Check if there are changes to be committed
 if ! git status | grep -q "Changes to be committed"; then
   echo "No changes detected"
+
+  # list pull requests opened for specific branch
+  # expect 1 branch
+  curl \
+    --connect-timeout 10 \
+    -u "${INPUT_USER_NAME}:${API_TOKEN_GITHUB}" \
+    -H 'Content-Type: application/json' \
+    "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls?state=open&head=${GITHUB_REPOSITORY_OWNER}:${INPUT_BRANCH}" | tee pull_requests.json
+
+  count=$(jq '. | length' pull_requests.json)
+  if [ "$count" -eq 1 ]
+  then
+    PR_URL=$(jq '.[0].html_url' pull_requests.json)
+    echo "- $PR_URL" >> $GITHUB_STEP_SUMMARY
+  fi
+
   exit 0
 fi
 
@@ -115,7 +131,7 @@ then
 fi
 
 # list pull requests opened for specific branch
-# expect maximum 1 branch
+# expect branch
 curl \
   --connect-timeout 10 \
   -u "${INPUT_USER_NAME}:${API_TOKEN_GITHUB}" \
