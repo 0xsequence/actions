@@ -125,8 +125,8 @@ PR_EXISTS=$(jq '.errors' response.json)
 # PR does not exist
 if [ "$PR_EXISTS" = 'null' ]
 then
-  PR_URL=$(jq '.html_url' response.json)
-  echo "- $PR_URL" >> $GITHUB_STEP_SUMMARY
+  PR_URL=$(jq -r '.html_url' response.json)
+  echo "$PR_URL" >> $GITHUB_STEP_SUMMARY
   exit 0
 fi
 
