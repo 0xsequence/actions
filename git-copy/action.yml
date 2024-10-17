@@ -35,8 +35,8 @@ inputs:
     description: 'Create pull request again specific base. Defaults to master branch'
     required: false
     default: 'master'
-  labels:
-    description: 'Mark PR with specific labels. Multiple labels separate with space'
+  pr_labels:
+    description: 'Mark PR with specific labels. Multiple labels separated by comma'
     required: false
     default: ''
 runs:
@@ -54,7 +54,7 @@ runs:
     - ${{ inputs.pr-title }}
     - ${{ inputs.pr-description }}
     - ${{ inputs.pr-base }}
-    - ${{ inputs.labels }}
+    - ${{ inputs.pr_labels }}
 branding:
   icon: 'git-commit'
   color: 'green'

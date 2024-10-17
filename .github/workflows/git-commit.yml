@@ -32,4 +32,4 @@ jobs:
           pr_title: "[GIT-COMMIT]: Use glob pattern ${{ github.repository }}"
           pr_create: true
           pr_base: 'master'
-
+          pr_labels: "bug,documentation,good first issue"
