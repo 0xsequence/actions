@@ -29,6 +29,10 @@ inputs:
     description: 'Create pull request again specific base. Defaults to master branch'
     required: false
     default: 'master'
+  labels:
+    description: 'Mark PR with specific labels. Multiple labels separate with space'
+    required: false
+    default: ''
 runs:
   using: 'docker'
   image: 'Dockerfile'
@@ -42,6 +46,7 @@ runs:
     - ${{ inputs.pr-title }}
     - ${{ inputs.pr-description }}
     - ${{ inputs.pr-base }}
+    - ${{ inputs.labels }}
 branding:
   icon: 'git-commit'
   color: 'green'

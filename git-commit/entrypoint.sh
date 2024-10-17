@@ -118,6 +118,31 @@ PR_EXISTS=$(jq '.errors' response.json)
 if [ "$PR_EXISTS" = 'null' ]
 then
   PR_URL=$(jq -r '.html_url' response.json)
+  PR_ID=$(jq -r '.number' response.json)
+
+  IFS=' '
+  LABELS=""
+  # Loop over the input labels
+  for LABEL in $INPUT_LABELS; do
+    if [ -z "$LABELS" ]; then
+      LABELS="\"$LABEL\""  # First label, no comma
+    else
+      LABELS="$LABELS, \"$LABEL\""  # Subsequent labels, add a comma
+    fi
+  done
+
+  # Wrap the labels in square brackets and prepare the JSON payload
+  LABELS_JSON="{\"labels\":[$LABELS]}"
+
+  curl \
+    -L \
+    --connect-timeout 10 \
+    -u "$INPUT_USER_NAME}:$API_TOKEN_GITHUB" \
+    -X POST \
+    -H "Accept: application/vnd.github+json" \
+    -d "$LABELS_JSON" \
+    "https://api.github.com/repos/$INPUT_REPOSITORY/issues/$PR_ID/labels"
+
   echo "$PR_URL" >> $GITHUB_STEP_SUMMARY
   exit 0
 fi
