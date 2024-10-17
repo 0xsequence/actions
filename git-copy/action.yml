@@ -8,8 +8,8 @@ inputs:
     description: 'Destination branch'
     required: true
   dst:
-    description: 'Directory to push the source to. Defaults to same folder as the source input'
-    required: false
+    description: 'Directory to push the source to'
+    required: true
   user_name:
     description: 'GitHub username for the commit. Defaults to GITHUB_ACTOR'
     required: false

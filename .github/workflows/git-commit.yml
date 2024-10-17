@@ -6,7 +6,7 @@ env:
   sha: $GITHUB_SHA
 
 jobs:
-  git-commit:
+  git-copy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -21,8 +21,8 @@ jobs:
           mkdir docs-test-folder
           echo $GITHUB_SHA > docs-test-folder/test01.md
           echo $(pwd)
-          echo $GITHUB_SHA >> git-commit/examples/1/example.gen.yaml
-          echo $GITHUB_SHA >> git-commit/examples/2/example.gen.yaml
+          echo $GITHUB_SHA >> git-copy/examples/1/example.gen.yaml
+          echo $GITHUB_SHA >> git-copy/examples/2/example.gen.yaml
 
       - name: Mark test file
         run: |
@@ -34,6 +34,7 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
         with:
           src: 'test02.md'
+          dst: './'
           branch: 'git-copy-file'
           pr_create: true
           pr_base: 'master'

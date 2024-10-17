@@ -64,7 +64,7 @@ git reset --hard "origin/$INPUT_BRANCH"  || true
 git rebase -Xours "${INPUT_PR_BASE}"
 
 DEST_COPY="$CLONE_DIR/$INPUT_DST"
-if [ "$INPUT_DST" != "" ]
+if [ "$INPUT_DST" != "./" ]
 then
   mkdir -p $DEST_COPY
 fi
@@ -132,5 +132,3 @@ curl \
 
 PR_URL=$(jq '.[0].html_url' pull_requests.json)
 echo "- $PR_URL" >> $GITHUB_STEP_SUMMARY
-
-
