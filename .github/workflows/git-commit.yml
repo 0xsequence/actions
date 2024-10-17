@@ -6,7 +6,7 @@ env:
   sha: $GITHUB_SHA
 
 jobs:
-  git-copy:
+  git-commit:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -27,20 +27,9 @@ jobs:
         env:
           API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: 'git-commit/examples/**/*.gen.yaml'
+          files: 'git-commit/examples/**/*.gen.yaml git-commit/examples/3/deprecated.json git-commit/examples/4/deprecated.json'
           branch: 'git-commit'
           pr_title: "[GIT-COMMIT]: Use glob pattern ${{ github.repository }}"
-          pr_create: true
-          pr_base: 'master'
-
-      - name: Removed file
-        uses: ./git-commit
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          files: 'git-commit/examples/3/deprecated.json git-commit/examples/4/deprecated.json'
-          branch: 'git-commit'
-          pr_title: "[GIT-COMMIT]: Push back deleted file ${{ github.repository }}"
           pr_create: true
           pr_base: 'master'
 

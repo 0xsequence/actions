@@ -1,4 +1,4 @@
-name: Git commit
+name: Git copy
 
 on: [pull_request]
 

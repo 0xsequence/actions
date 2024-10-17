@@ -61,10 +61,13 @@ IFS=' '
 # Loop over the strings
 for FILE in $INPUT_FILES; do
   echo "Processing $FILE"
-  cp -f --parents $FILE "$CLONE_DIR" 2>/dev/null
-  if [ $? -eq 0 ]; then
+  cp -f --parents $FILE "$CLONE_DIR"
+  # Remove file if does not exist in `src`
+  if [ $? -eq 1 ]; then
+    cd "$CLONE_DIR"
     echo "Deleting $FILE"
     rm -f $FILE
+    cd "$BASE_DIR"
   fi
 done
 cd $CLONE_DIR
