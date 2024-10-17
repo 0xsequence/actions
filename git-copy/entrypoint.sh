@@ -90,7 +90,11 @@ git rebase -Xours "${INPUT_PR_BASE}"
 DEST_COPY="$CLONE_DIR/$INPUT_DST"
 if [ "$INPUT_DST" != "./" ]
 then
-  mkdir -p $DEST_COPY
+  if [[ "$DEST_COPY" == */ ]]; then
+    mkdir -p $DEST_COPY
+  else
+    mkdir -p $(dirname $DEST_COPY)
+  fi;
 fi
 
 echo "Copying contents to git repo"
