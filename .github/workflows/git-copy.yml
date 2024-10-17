@@ -49,7 +49,7 @@ jobs:
           pr_create: true
           pr_base: 'master'
           pr_title: "[GIT-COPY]: Folder ${{ github.repository }}"
-          pr_labels: "invalid"
+          pr_labels: "invalid,documentation,bug"
 
       - name: Push multiple files
         uses: ./git-copy
