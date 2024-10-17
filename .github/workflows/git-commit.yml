@@ -14,61 +14,22 @@ jobs:
 
       - name: Mark test file
         run: |
-          echo $GITHUB_SHA > test02.md
-          mkdir docs
-          echo $GITHUB_SHA > docs/test01.md
-          echo $GITHUB_SHA > docs/test02.md
-          mkdir docs-test-folder
-          echo $GITHUB_SHA > docs-test-folder/test01.md
-          echo $(pwd)
           echo $GITHUB_SHA >> git-commit/examples/1/example.gen.yaml
           echo $GITHUB_SHA >> git-commit/examples/2/example.gen.yaml
+          rm git-commit/examples/3/deprecated.json
 
       - name: Mark test file
         run: |
           echo "### Git commit action! :rocket:" >> $GITHUB_STEP_SUMMARY
 
-      - name: Push specific file
+      - name: Changed files
         uses: ./git-commit
         env:
           API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
         with:
-          src: 'test02.md'
-          branch: 'git-commit-file'
-          pr_create: true
-          pr_base: 'master'
-          pr_title: "Push specific file: ${{ github.repository }}"
-
-      - name: Push specific folder
-        uses: ./git-commit
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          src: 'docs-test-folder/'
-          dst: 'docs-test-folder/'
-          branch: 'git-commit-folder'
+          files: 'git-commit/examples/**/*.gen.yaml git-commit/examples/3/deprecated.json git-commit/examples/4/deprecated.json'
+          branch: 'git-commit'
+          pr_title: "[GIT-COMMIT]: Use glob pattern ${{ github.repository }}"
           pr_create: true
           pr_base: 'master'
 
-      - name: Push multiple files
-        uses: ./git-commit
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          src: 'docs/*.md'
-          dst: 'docs/'
-          branch: 'git-commit-multiple-files'
-          pr_create: true
-          pr_base: 'master'
-
-      - name: Overwrite files
-        uses: ./git-commit
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          src: 'git-commit/examples/**/*.gen.yaml'
-          branch: 'git-commit-overwrite'
-          pr_title: "Overwrite existing files: ${{ github.repository }}"
-          pr_create: true
-          pr_base: 'master'
-          overwrite: true

@@ -1,12 +1,11 @@
 #!/bin/sh
 
+set -e
 set -x
 
-INPUT_REPOSITORY="${GITHUB_REPOSITORY}"
-
-if [ -z "$INPUT_BRANCH" ]
+if [ -z "$INPUT_REPOSITORY" ]
 then
-  INPUT_BRANCH=${GITHUB_HEAD_REF}
+  INPUT_REPOSITORY="${GITHUB_REPOSITORY}"
 fi
 
 if [ -z "$INPUT_COMMIT_MESSAGE" ]
@@ -22,6 +21,11 @@ fi
 if [ -z "$INPUT_PR_DESCRIPTION" ]
 then
   INPUT_PR_DESCRIPTION="Triggered by https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
+fi
+
+if [ -z "$INPUT_BRANCH" ]
+then
+  INPUT_BRANCH=${GITHUB_HEAD_REF}
 fi
 
 if [ -z "$INPUT_USER_NAME" ]
@@ -52,25 +56,16 @@ cd "$CLONE_DIR"
 echo "Creating new branch: ${INPUT_BRANCH}"
 git checkout -b "$INPUT_BRANCH"
 git reset --hard "origin/$INPUT_BRANCH"  || true
+git rebase -Xours "${INPUT_PR_BASE}"
 
-echo "Replacing contents"
-cd "$BASE_DIR"
+DEST_COPY="$CLONE_DIR/$INPUT_DST"
+if [ "$INPUT_DST" != "./" ]
+then
+  mkdir -p $DEST_COPY
+fi
 
-# Set IFS to whitespace (this is the default, but it's good to make it explicit)
-IFS=' '
-# Loop over the strings
-for FILE in $INPUT_FILES; do
-  echo "Processing $FILE"
-  cp -f --parents $FILE "$CLONE_DIR"
-  # Remove file if does not exist in `src`
-  if [ $? -eq 1 ]; then
-    cd "$CLONE_DIR"
-    echo "Deleting $FILE"
-    rm -f $FILE
-    cd "$BASE_DIR"
-  fi
-done
-cd $CLONE_DIR
+echo "Copying contents to git repo"
+cp -R $BASE_DIR/$INPUT_SRC "$DEST_COPY"
 
 echo "Adding git commit"
 git add .
@@ -153,7 +148,7 @@ curl \
   --connect-timeout 10 \
   -u "${INPUT_USER_NAME}:${API_TOKEN_GITHUB}" \
   -H 'Content-Type: application/json' \
-  "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls?state=open&head=${GITHUB_REPOSITORY_OWNER}:${INPUT_BRANCH}" | tee pull_requests.json
+  "https://api.github.com/repos/$INPUT_REPOSITORY/pulls?state=open&head=$GITHUB_REPOSITORY_OWNER:$INPUT_BRANCH" | tee pull_requests.json
 
 PR_URL=$(jq '.[0].html_url' pull_requests.json)
 echo "- $PR_URL" >> $GITHUB_STEP_SUMMARY

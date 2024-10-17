@@ -1,0 +1,64 @@
+name: Git copy
+
+on: [pull_request]
+
+env:
+  sha: $GITHUB_SHA
+
+jobs:
+  git-copy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Change files
+        run: |
+          echo $GITHUB_SHA > test02.md
+          mkdir docs
+          echo $GITHUB_SHA > docs/test01.md
+          echo $GITHUB_SHA > docs/test02.md
+          mkdir docs-test-folder
+          echo $GITHUB_SHA > docs-test-folder/test01.md
+
+      - name: Mark test file
+        run: |
+          echo "### Git commit action! :rocket:" >> $GITHUB_STEP_SUMMARY
+
+      - name: Push specific file
+        uses: ./git-copy
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          src: 'test02.md'
+          dst: './'
+          branch: 'git-copy-file'
+          pr_create: true
+          pr_base: 'master'
+          pr_title: "[GIT-COPY]: One file ${{ github.repository }}"
+          labels: "bug documentation"
+
+      - name: Push specific folder
+        uses: ./git-copy
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          src: 'docs-test-folder/'
+          dst: 'docs-test-folder/'
+          branch: 'git-copy-folder'
+          pr_create: true
+          pr_base: 'master'
+          pr_title: "[GIT-COPY]: Folder ${{ github.repository }}"
+          labels: "invalid"
+
+      - name: Push multiple files
+        uses: ./git-copy
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          src: 'docs/*.md'
+          dst: 'docs/'
+          branch: 'git-copy-multiple-files'
+          pr_create: true
+          pr_base: 'master'
+          pr_title: "[GIT-COPY]: Multiple files using glob pattern"
