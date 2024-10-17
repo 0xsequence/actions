@@ -70,15 +70,7 @@ then
 fi
 
 echo "Copying contents to git repo"
-
-if [ "$INPUT_OVERWRITE" = true ]
-then
-  cd "$BASE_DIR"
-  cp -f --parents $INPUT_SRC "$CLONE_DIR"
-  cd $CLONE_DIR
-else
-  cp -R $BASE_DIR/$INPUT_SRC "$DEST_COPY"
-fi
+cp -R $BASE_DIR/$INPUT_SRC "$DEST_COPY"
 
 echo "Adding git commit"
 git add .
