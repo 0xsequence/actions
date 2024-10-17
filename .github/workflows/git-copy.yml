@@ -36,6 +36,7 @@ jobs:
           pr_create: true
           pr_base: 'master'
           pr_title: "[GIT-COPY]: One file ${{ github.repository }}"
+          labels: "bug documentation"
 
       - name: Push specific folder
         uses: ./git-copy
@@ -48,6 +49,7 @@ jobs:
           pr_create: true
           pr_base: 'master'
           pr_title: "[GIT-COPY]: Folder ${{ github.repository }}"
+          labels: "invalid"
 
       - name: Push multiple files
         uses: ./git-copy
