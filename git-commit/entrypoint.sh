@@ -1,11 +1,12 @@
 #!/bin/sh
 
-set -e
 set -x
 
-if [ -z "$INPUT_REPOSITORY" ]
+INPUT_REPOSITORY="${GITHUB_REPOSITORY}"
+
+if [ -z "$INPUT_BRANCH" ]
 then
-  INPUT_REPOSITORY="${GITHUB_REPOSITORY}"
+  INPUT_BRANCH=${GITHUB_HEAD_REF}
 fi
 
 if [ -z "$INPUT_COMMIT_MESSAGE" ]
@@ -21,11 +22,6 @@ fi
 if [ -z "$INPUT_PR_DESCRIPTION" ]
 then
   INPUT_PR_DESCRIPTION="Triggered by https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
-fi
-
-if [ -z "$INPUT_BRANCH" ]
-then
-  INPUT_BRANCH=${GITHUB_HEAD_REF}
 fi
 
 if [ -z "$INPUT_USER_NAME" ]
@@ -56,16 +52,22 @@ cd "$CLONE_DIR"
 echo "Creating new branch: ${INPUT_BRANCH}"
 git checkout -b "$INPUT_BRANCH"
 git reset --hard "origin/$INPUT_BRANCH"  || true
-git rebase -Xours "${INPUT_PR_BASE}"
 
-DEST_COPY="$CLONE_DIR/$INPUT_DST"
-if [ "$INPUT_DST" != "./" ]
-then
-  mkdir -p $DEST_COPY
-fi
+echo "Replacing contents"
+cd "$BASE_DIR"
 
-echo "Copying contents to git repo"
-cp -R $BASE_DIR/$INPUT_SRC "$DEST_COPY"
+# Set IFS to whitespace (this is the default, but it's good to make it explicit)
+IFS=' '
+# Loop over the strings
+for FILE in $INPUT_FILES; do
+  echo "Processing $FILE"
+  cp -f --parents $FILE "$CLONE_DIR" 2>/dev/null
+  if [ $? -eq 0 ]; then
+    echo "Deleting $FILE"
+    rm -f $FILE
+  fi
+done
+cd $CLONE_DIR
 
 echo "Adding git commit"
 git add .
