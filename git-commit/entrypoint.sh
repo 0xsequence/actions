@@ -90,8 +90,8 @@ if ! git status | grep -q "Changes to be committed"; then
   count=$(jq '. | length' pull_requests.json)
   if [ "$count" -eq 1 ]
   then
-    PR_URL=$(jq '.[0].html_url' pull_requests.json)
-    echo "- $PR_URL" >> $GITHUB_STEP_SUMMARY
+    PR_URL=$(jq -r '.[0].html_url' pull_requests.json)
+    echo "$PR_URL" >> $GITHUB_STEP_SUMMARY
   fi
 
   exit 0
@@ -157,5 +157,5 @@ curl \
   -H 'Content-Type: application/json' \
   "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls?state=open&head=${GITHUB_REPOSITORY_OWNER}:${INPUT_BRANCH}" | tee pull_requests.json
 
-PR_URL=$(jq '.[0].html_url' pull_requests.json)
-echo "- $PR_URL" >> $GITHUB_STEP_SUMMARY
+PR_URL=$(jq -r '.[0].html_url' pull_requests.json)
+echo "$PR_URL" >> $GITHUB_STEP_SUMMARY
