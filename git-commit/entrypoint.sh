@@ -1,5 +1,34 @@
 #!/bin/sh
 
+update_labels () {
+  PR_ID=$1
+
+  IFS=','
+  LABELS=""
+  # Loop over the input labels
+  for LABEL in $INPUT_PR_LABELS; do
+    if [ -z "$LABELS" ]; then
+      LABELS="\"$LABEL\""  # First label, no comma
+    else
+      LABELS="$LABELS, \"$LABEL\""  # Subsequent labels, add a comma
+    fi
+  done
+
+  if [ -n "$LABELS" ]; then
+    # Wrap the labels in square brackets and prepare the JSON payload
+    LABELS_JSON="{\"labels\":[$LABELS]}"
+
+    curl \
+      -L \
+      --connect-timeout 10 \
+      -u "$INPUT_USER_NAME}:$API_TOKEN_GITHUB" \
+      -X POST \
+      -H "Accept: application/vnd.github+json" \
+      -d "$LABELS_JSON" \
+      "https://api.github.com/repos/$INPUT_REPOSITORY/issues/$PR_ID/labels"
+  fi
+}
+
 set -x
 
 INPUT_REPOSITORY="${GITHUB_REPOSITORY}"
@@ -85,39 +114,13 @@ if ! git status | grep -q "Changes to be committed"; then
     --connect-timeout 10 \
     -u "${INPUT_USER_NAME}:${API_TOKEN_GITHUB}" \
     -H 'Content-Type: application/json' \
-    "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls?state=open&head=${GITHUB_REPOSITORY_OWNER}:${INPUT_BRANCH}" | tee pull_requests.json
+    "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls?state=open&head=${GITHUB_REPOSITORY_OWNER}:${INPUT_BRANCH}" | tee pull_request.json
 
-  count=$(jq '. | length' pull_requests.json)
+  count=$(jq '. | length' pull_request.json)
   if [ "$count" -eq 1 ]
   then
-    PR_URL=$(jq -r '.[0].html_url' pull_requests.json)
-    PR_ID=$(jq -r '.[0].number' pull_requests.json)
-
-    IFS=','
-    LABELS=""
-    # Loop over the input labels
-    for LABEL in $INPUT_PR_LABELS; do
-      if [ -z "$LABELS" ]; then
-        LABELS="\"$LABEL\""  # First label, no comma
-      else
-        LABELS="$LABELS, \"$LABEL\""  # Subsequent labels, add a comma
-      fi
-    done
-
-    if [ -n "$LABELS" ]; then
-      # Wrap the labels in square brackets and prepare the JSON payload
-      LABELS_JSON="{\"labels\":[$LABELS]}"
-
-      curl \
-        -L \
-        --connect-timeout 10 \
-        -u "$INPUT_USER_NAME}:$API_TOKEN_GITHUB" \
-        -X POST \
-        -H "Accept: application/vnd.github+json" \
-        -d "$LABELS_JSON" \
-        "https://api.github.com/repos/$INPUT_REPOSITORY/issues/$PR_ID/labels"
-    fi
-
+    PR_URL=$(jq -r '.[0].html_url' pull_request.json)
+    update_labels $(jq -r '.[0].number' pull_request.json)
     echo "$PR_URL" >> $GITHUB_STEP_SUMMARY
   fi
 
@@ -138,40 +141,14 @@ curl \
   -u "${INPUT_USER_NAME}:${API_TOKEN_GITHUB}" \
   -X POST -H 'Content-Type: application/json' \
   --data "{\"head\":\"$INPUT_BRANCH\",\"base\":\"${INPUT_PR_BASE}\", \"title\": \"${INPUT_PR_TITLE}\", \"body\": \"${PR_DESCRIPTION_ESCAPED}\"}" \
-  "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls" | tee response.json
+  "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls" | tee pull_request.json
 
-PR_EXISTS=$(jq '.errors' response.json)
+PR_EXISTS=$(jq '.errors' pull_request.json)
 # PR does not exist
 if [ "$PR_EXISTS" = 'null' ]
 then
-  PR_URL=$(jq -r '.html_url' response.json)
-  PR_ID=$(jq -r '.number' response.json)
-
-  IFS=','
-  LABELS=""
-  # Loop over the input labels
-  for LABEL in $INPUT_PR_LABELS; do
-    if [ -z "$LABELS" ]; then
-      LABELS="\"$LABEL\""  # First label, no comma
-    else
-      LABELS="$LABELS, \"$LABEL\""  # Subsequent labels, add a comma
-    fi
-  done
-
-  if [ -n "$LABELS" ]; then
-    # Wrap the labels in square brackets and prepare the JSON payload
-    LABELS_JSON="{\"labels\":[$LABELS]}"
-
-    curl \
-      -L \
-      --connect-timeout 10 \
-      -u "$INPUT_USER_NAME}:$API_TOKEN_GITHUB" \
-      -X POST \
-      -H "Accept: application/vnd.github+json" \
-      -d "$LABELS_JSON" \
-      "https://api.github.com/repos/$INPUT_REPOSITORY/issues/$PR_ID/labels"
-  fi
-
+  PR_URL=$(jq -r '.html_url' pull_request.json)
+  update_labels $(jq -r '.number' pull_request.json)
   echo "$PR_URL" >> $GITHUB_STEP_SUMMARY
   exit 0
 fi
@@ -182,34 +159,9 @@ curl \
   --connect-timeout 10 \
   -u "${INPUT_USER_NAME}:${API_TOKEN_GITHUB}" \
   -H 'Content-Type: application/json' \
-  "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls?state=open&head=${GITHUB_REPOSITORY_OWNER}:${INPUT_BRANCH}" | tee pull_requests.json
+  "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls?state=open&head=${GITHUB_REPOSITORY_OWNER}:${INPUT_BRANCH}" | tee pull_request.json
 
-PR_URL=$(jq -r '.[0].html_url' pull_requests.json)
-PR_ID=$(jq -r '.[0].number' pull_requests.json)
-
-IFS=','
-LABELS=""
-# Loop over the input labels
-for LABEL in $INPUT_PR_LABELS; do
-  if [ -z "$LABELS" ]; then
-    LABELS="\"$LABEL\""  # First label, no comma
-  else
-    LABELS="$LABELS, \"$LABEL\""  # Subsequent labels, add a comma
-  fi
-done
-
-if [ -n "$LABELS" ]; then
-  # Wrap the labels in square brackets and prepare the JSON payload
-  LABELS_JSON="{\"labels\":[$LABELS]}"
-
-  curl \
-    -L \
-    --connect-timeout 10 \
-    -u "$INPUT_USER_NAME}:$API_TOKEN_GITHUB" \
-    -X POST \
-    -H "Accept: application/vnd.github+json" \
-    -d "$LABELS_JSON" \
-    "https://api.github.com/repos/$INPUT_REPOSITORY/issues/$PR_ID/labels"
-fi
-
+PR_URL=$(jq -r '.[0].html_url' pull_request.json)
+update_labels $(jq -r '.[0].number' pull_request.json)
 echo "$PR_URL" >> $GITHUB_STEP_SUMMARY
+
