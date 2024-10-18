@@ -17,6 +17,10 @@ jobs:
           echo $GITHUB_SHA >> git-commit/examples/1/example.gen.yaml
           echo $GITHUB_SHA >> git-commit/examples/2/example.gen.yaml
           rm git-commit/examples/3/deprecated.json
+          echo $GITHUB_SHA >> git-commit/examples/2/example.json
+          mkdir git-commit/copy-folder/
+          echo $GITHUB_SHA >> git-commit/copy-folder/example0.gen.yaml
+          echo $GITHUB_SHA >> git-commit/copy-folder/example1.gen.yaml
 
       - name: Mark test file
         run: |
@@ -33,3 +37,25 @@ jobs:
           pr_create: true
           pr_base: 'master'
           pr_labels: "bug,documentation,good first issue"
+
+      - name: New files
+        uses: ./git-commit
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: 'git-commit/examples/**/*.json'
+          branch: 'git-commit-new-files'
+          pr_title: "[GIT-COMMIT]: New files ${{ github.repository }}"
+          pr_create: true
+          pr_base: 'master'
+
+      - name: Commit back folder
+        uses: ./git-commit
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: 'git-commit/copy-folder/'
+          branch: 'git-commit-new-folder'
+          pr_title: "[GIT-COMMIT]: Folder ${{ github.repository }}"
+          pr_create: true
+          pr_base: 'master'

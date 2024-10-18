@@ -90,14 +90,17 @@ IFS=' '
 # Loop over the strings
 for FILE in $INPUT_FILES; do
   echo "Processing $FILE"
-  cp -f --parents $FILE "$CLONE_DIR"
-  # Remove file if does not exist in `src`
-  if [ $? -eq 1 ]; then
-    cd "$CLONE_DIR"
-    echo "Deleting $FILE"
-    rm -f $FILE
-    cd "$BASE_DIR"
-  fi
+  rm -rf $CLONE_DIR/$FILE
+
+  if [[ "$FILE" == "*/" ]]; then
+    echo "hu"
+    mkdir -p $CLONE_DIR/$FILE
+  else
+    echo "ha"
+    mkdir -p $(dirname $CLONE_DIR/$FILE)
+  fi;
+
+  cp -rf --parents $FILE "$CLONE_DIR"
 done
 cd $CLONE_DIR
 
