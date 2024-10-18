@@ -54,7 +54,7 @@ jobs:
         env:
           API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: 'git-commit/copy-folder/'
+          files: 'git-commit/copy-folder'
           branch: 'git-commit-new-folder'
           pr_title: "[GIT-COMMIT]: Folder ${{ github.repository }}"
           pr_create: true
