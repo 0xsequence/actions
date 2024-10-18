@@ -93,10 +93,8 @@ for FILE in $INPUT_FILES; do
   rm -rf $CLONE_DIR/$FILE
 
   if [[ "$FILE" == "*/" ]]; then
-    echo "hu"
     mkdir -p $CLONE_DIR/$FILE
   else
-    echo "ha"
     mkdir -p $(dirname $CLONE_DIR/$FILE)
   fi;
 
