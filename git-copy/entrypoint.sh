@@ -105,9 +105,9 @@ cp -R $BASE_DIR/$INPUT_SRC "$DEST_COPY"
 echo "Adding git commit"
 git add .
 
-# Check if there are changes to be committed
-if ! git status | grep -q "Changes to be committed"; then
-  echo "No changes detected"
+# Check if there are any changes to be committed
+if git diff --cached; then
+  echo "Nothing to commit."
 
   # list pull requests opened for specific branch
   # expect 1 branch
