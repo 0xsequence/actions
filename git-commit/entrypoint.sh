@@ -93,8 +93,9 @@ for INPUT in $INPUT_FILES; do
         # If it's a file or matches a glob, sync the file
         rsync -avh "$INPUT" "$DEST_DIR/$(dirname "$INPUT")/"
     else
-        echo "Error: file '$INPUT' does not exist or is invalid"
-        exit 1
+        # delete file in destination
+        # https://www.shellcheck.net/wiki/SC2115
+        rm -rf "${DEST_DIR:?}/$(dirname "$INPUT")/"
     fi
 done
 
