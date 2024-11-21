@@ -1,41 +1,41 @@
-name: 'Git commit'
-description: 'Commit changed file to destination repository'
+name: "Git commit"
+description: "Commit changed file to destination repository"
 inputs:
   files:
-    description: 'Source file from the origin directory. Can be a file, glob (`*.json`) or folder'
+    description: "Source files. Can be file, glob (`*.json`) or folder"
     required: true
   branch:
-    description: 'Destination branch'
+    description: "Destination branch"
     required: true
   user_name:
-    description: 'GitHub username for the commit. Defaults to GITHUB_ACTOR'
+    description: "Github username for the commit. Defaults to GITHUB_ACTOR"
     required: false
   user_email:
-    description: 'Email for the git commit. Defaults to commit author email'
+    description: "Email used for git commit. Defaults to commit author email"
     required: false
   commit_message:
-    description: 'A custom message for the commit'
+    description: "A custom message for the commit"
     required: false
   pr_create:
-    description: 'Create pull request automatically if changes are successfully commited'
+    description: "Create pull request automatically if changes are successfully committed"
     required: false
   pr_title:
-    description: 'Pull request title'
+    description: "Pull request title"
     required: false
   pr_description:
-    description: 'Pull request description'
+    description: "Pull request description"
     required: false
   pr_base:
-    description: 'Create pull request again specific base. Defaults to master branch'
+    description: "Create pull request again specific base branch. Defaults to master branch"
     required: false
-    default: 'master'
+    default: "master"
   pr_labels:
-    description: 'Mark PR with specific labels. Multiple labels separated by comma'
+    description: "Mark PR with specific labels. Multiple labels separated by comma"
     required: false
-    default: ''
+    default: ""
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  using: "docker"
+  image: "Dockerfile"
   args:
     - ${{ inputs.files }}
     - ${{ inputs.branch }}
@@ -48,5 +48,5 @@ runs:
     - ${{ inputs.pr-base }}
     - ${{ inputs.pr-labels }}
 branding:
-  icon: 'git-commit'
-  color: 'green'
+  icon: "git-commit"
+  color: "green"

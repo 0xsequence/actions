@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 update_labels () {
   PR_ID=$1
 
@@ -28,8 +30,6 @@ update_labels () {
       "https://api.github.com/repos/$INPUT_REPOSITORY/issues/$PR_ID/labels"
   fi
 }
-
-set -x
 
 INPUT_REPOSITORY="${GITHUB_REPOSITORY}"
 
@@ -68,54 +68,49 @@ then
   INPUT_PR_CREATE=false
 fi
 
-CLONE_DIR=$(mktemp -d)
+DEST_DIR=$(mktemp -d)
 
 echo "Cloning destination git repository"
 git config --global user.name "$INPUT_USER_NAME"
 git config --global user.email "$INPUT_USER_EMAIL"
-git clone "https://x-access-token:$API_TOKEN_GITHUB@github.com/$INPUT_REPOSITORY.git" "$CLONE_DIR"
+git clone "https://x-access-token:$API_TOKEN_GITHUB@github.com/$INPUT_REPOSITORY.git" "$DEST_DIR"
 
 BASE_DIR=$(pwd)
-cd "$CLONE_DIR"
+cd "$DEST_DIR"
 
 echo "Creating new branch: ${INPUT_BRANCH}"
 git checkout -b "$INPUT_BRANCH"
-git reset --hard "origin/$INPUT_BRANCH"  || true
+git reset --hard "origin/$INPUT_BRANCH" || true
 
-echo "Replacing contents"
 cd "$BASE_DIR"
+echo "Copying files"
 
-# Set IFS to whitespace (this is the default, but it's good to make it explicit)
-IFS=' '
-# Loop over the strings
-for FILE in $INPUT_FILES; do
-  echo "Processing $FILE"
-  rm -rf $CLONE_DIR/$FILE
-
-  if [[ "$FILE" == "*/" ]]; then
-    mkdir -p $CLONE_DIR/$FILE
-  else
-    mkdir -p $(dirname $CLONE_DIR/$FILE)
-  fi;
-
-  cp -rf --parents $FILE "$CLONE_DIR"
+for INPUT in $INPUT_FILES; do
+    if [ -d "$INPUT" ]; then
+        # If it's a directory, sync the entire directory
+        rsync -avh --delete "$INPUT/" "$DEST_DIR/$INPUT"
+    elif [ -e "$INPUT" ]; then
+        # If it's a file or matches a glob, sync the file
+        rsync -avh "$INPUT" "$DEST_DIR/$(dirname "$INPUT")/"
+    else
+        echo "Error: file '$INPUT' does not exist or is invalid"
+        exit 1
+    fi
 done
-cd $CLONE_DIR
 
-echo "Adding git commit"
-git add .
+cd $DEST_DIR
+git status -s
 
-# Check if there are any changes to be committed
-if git diff --cached; then
+# Exit early if there's nothing to commit.
+if [ -z "$(git status -s)" ]; then
   echo "Nothing to commit."
 
-  # list pull requests opened for specific branch
-  # expect 1 branch
+  # Print pull requests URL for the current branch.
   curl \
     --connect-timeout 10 \
     -u "${INPUT_USER_NAME}:${API_TOKEN_GITHUB}" \
     -H 'Content-Type: application/json' \
-    "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls?state=open&head=${GITHUB_REPOSITORY_OWNER}:${INPUT_BRANCH}" | tee pull_request.json
+    "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls?state=open&head=${GITHUB_REPOSITORY_OWNER}:${INPUT_BRANCH}" > pull_request.json
 
   count=$(jq '. | length' pull_request.json)
   if [ "$count" -eq 1 ]
@@ -128,11 +123,12 @@ if git diff --cached; then
   exit 0
 fi
 
+echo "Committing changes"
+git add .
 git commit --message "${INPUT_COMMIT_MESSAGE}"
-echo "Pushing git commit"
 git push -u origin --force HEAD:"$INPUT_BRANCH"
 
-# Exit early if pull request creation is not needed
+# Exit early if pull request is not enabled.
 [ "$INPUT_PR_CREATE" != true ] && exit 0
 
 PR_DESCRIPTION_ESCAPED="${INPUT_PR_DESCRIPTION//$'\n'/\\n}"
@@ -142,25 +138,23 @@ curl \
   -u "${INPUT_USER_NAME}:${API_TOKEN_GITHUB}" \
   -X POST -H 'Content-Type: application/json' \
   --data "{\"head\":\"$INPUT_BRANCH\",\"base\":\"${INPUT_PR_BASE}\", \"title\": \"${INPUT_PR_TITLE}\", \"body\": \"${PR_DESCRIPTION_ESCAPED}\"}" \
-  "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls" | tee pull_request.json
+  "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls" > pull_request.json
 
 PR_EXISTS=$(jq '.errors' pull_request.json)
-# PR does not exist
-if [ "$PR_EXISTS" = 'null' ]
-then
+if [ "$PR_EXISTS" = 'null' ]; then
+  # Create pull request.
   PR_URL=$(jq -r '.html_url' pull_request.json)
   update_labels $(jq -r '.number' pull_request.json)
   echo "$PR_URL" >> $GITHUB_STEP_SUMMARY
   exit 0
 fi
 
-# list pull requests opened for specific branch
-# expect branch
+# Print pull requests URL for the current branch.
 curl \
   --connect-timeout 10 \
   -u "${INPUT_USER_NAME}:${API_TOKEN_GITHUB}" \
   -H 'Content-Type: application/json' \
-  "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls?state=open&head=${GITHUB_REPOSITORY_OWNER}:${INPUT_BRANCH}" | tee pull_request.json
+  "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls?state=open&head=${GITHUB_REPOSITORY_OWNER}:${INPUT_BRANCH}" > pull_request.json
 
 PR_URL=$(jq -r '.[0].html_url' pull_request.json)
 update_labels $(jq -r '.[0].number' pull_request.json)
