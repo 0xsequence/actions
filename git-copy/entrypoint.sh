@@ -106,7 +106,7 @@ echo "Adding git commit"
 git add .
 
 # Check if there are any changes to be committed
-if git diff --cached; then
+if ! git status | grep -q "Changes to be committed"; then
   echo "Nothing to commit."
 
   # list pull requests opened for specific branch
