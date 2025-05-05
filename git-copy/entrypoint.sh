@@ -83,8 +83,16 @@ BASE_DIR=$(pwd)
 cd "$CLONE_DIR"
 
 echo "Creating new branch: ${INPUT_BRANCH}"
+git fetch --all --tags
 git checkout -b "$INPUT_BRANCH"
-git reset --hard "origin/$INPUT_BRANCH"  || true
+
+# Reset to remote branch if it exists
+if git show-ref --verify --quiet "refs/remotes/origin/$INPUT_BRANCH"; then
+  git reset --hard "origin/$INPUT_BRANCH"
+else
+  echo "Warning: origin/$INPUT_BRANCH not found, skipping reset."
+fi
+
 git rebase -Xours "${INPUT_PR_BASE}"
 
 DEST_COPY="$CLONE_DIR/$INPUT_DST"
