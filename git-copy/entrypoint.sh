@@ -74,7 +74,7 @@ fi
 
 CLONE_DIR=$(mktemp -d)
 
-echo "Cloning destination git repository"
+echo "Cloning destination git repository github.com/$INPUT_REPOSITORY"
 git config --global user.name "$INPUT_USER_NAME"
 git config --global user.email "$INPUT_USER_EMAIL"
 git clone "https://x-access-token:$API_TOKEN_GITHUB@github.com/$INPUT_REPOSITORY.git" "$CLONE_DIR" --branch "${INPUT_PR_BASE}"
@@ -99,7 +99,7 @@ then
   fi;
 fi
 
-echo "Copying contents to git repo"
+echo "Copying contents to destination repository"
 cp -R $BASE_DIR/$INPUT_SRC "$DEST_COPY"
 
 echo "Adding git commit"
