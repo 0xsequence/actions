@@ -74,6 +74,7 @@ echo "Cloning destination git repository"
 git config --global user.name "$INPUT_USER_NAME"
 git config --global user.email "$INPUT_USER_EMAIL"
 git clone "https://x-access-token:$API_TOKEN_GITHUB@github.com/$INPUT_REPOSITORY.git" "$DEST_DIR"
+git config --global --add safe.directory "$DEST_DIR"
 
 BASE_DIR=$(pwd)
 cd "$DEST_DIR"
