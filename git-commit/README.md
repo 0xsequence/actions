@@ -14,4 +14,6 @@
 | `pr_title`       | `"[AUTOMATED] Update files from ${GITHUB_REPOSITORY}"`                        | `"Pull request title"`                       |
 | `pr_description` | `"Triggered by https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"` | `"Pull request description"`                 |
 | `pr_base`        | `"master"`                                                                    | `"Pull request base"`                        |
-| `pr_labels`      | `""`                                                                          | `"Pull request labels separated by comma"`   | 
+| `pr_labels`      | `""`                                                                          | `"Pull request labels separated by comma"`   |
+| `ssh_private_key`| `""`                                                                          | `"SSH private key for commit signing"`       |
+| `gpg_private_key`| `""`                                                                          | `"GPG private key (armored) for commit signing"` |
