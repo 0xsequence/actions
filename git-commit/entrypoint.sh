@@ -75,12 +75,20 @@ git config --global user.name "$INPUT_USER_NAME"
 git config --global user.email "$INPUT_USER_EMAIL"
 
 if [ -n "$INPUT_GPG_PRIVATE_KEY" ]; then
-  echo "Importing GPG key"
+  echo "Configuring GPG commit signing"
   echo "$INPUT_GPG_PRIVATE_KEY" | gpg --batch --import
   GPG_KEY_ID=$(gpg --list-secret-keys --keyid-format long 2>/dev/null | grep sec | head -1 | sed 's/.*\/\([A-F0-9]*\).*/\1/')
   git config --global user.signingkey "$GPG_KEY_ID"
   git config --global commit.gpgsign true
-  git config --global gpg.program gpg
+elif [ -n "$INPUT_SSH_PRIVATE_KEY" ]; then
+  echo "Configuring SSH commit signing"
+  SSH_KEY_FILE="$HOME/.ssh/signing_key"
+  mkdir -p "$HOME/.ssh"
+  echo "$INPUT_SSH_PRIVATE_KEY" > "$SSH_KEY_FILE"
+  chmod 600 "$SSH_KEY_FILE"
+  git config --global gpg.format ssh
+  git config --global user.signingkey "$SSH_KEY_FILE"
+  git config --global commit.gpgsign true
 fi
 
 git clone "https://x-access-token:$API_TOKEN_GITHUB@github.com/$INPUT_REPOSITORY.git" "$DEST_DIR"
