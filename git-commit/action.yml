@@ -33,6 +33,9 @@ inputs:
     description: "Mark PR with specific labels. Multiple labels separated by comma"
     required: false
     default: ""
+  gpg_private_key:
+    description: "GPG private key for commit signing. If provided, commits will be signed"
+    required: false
 runs:
   using: "docker"
   image: "Dockerfile"
@@ -47,6 +50,7 @@ runs:
     - ${{ inputs.pr-description }}
     - ${{ inputs.pr-base }}
     - ${{ inputs.pr-labels }}
+    - ${{ inputs.gpg-private-key }}
 branding:
   icon: "git-commit"
   color: "green"
