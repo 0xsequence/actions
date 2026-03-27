@@ -114,11 +114,10 @@ for INPUT in $INPUT_FILES; do
     else
         # Source path doesn't exist — delete the exact path in destination (not its parent)
         DEST_PATH="${DEST_DIR:?}/$INPUT"
+        echo "::warning::Path '$INPUT' does not exist in source repository"
         if [ -e "$DEST_PATH" ]; then
             echo "Removing deleted path: $INPUT"
             rm -rf "$DEST_PATH"
-        else
-            echo "Skipping non-existent path: $INPUT"
         fi
     fi
 done
