@@ -112,9 +112,14 @@ for INPUT in $INPUT_FILES; do
         # If it's a file or matches a glob, sync the file
         rsync -avh "$INPUT" "$DEST_DIR/$(dirname "$INPUT")/"
     else
-        # delete file in destination
-        # https://www.shellcheck.net/wiki/SC2115
-        rm -rf "${DEST_DIR:?}/$(dirname "$INPUT")/"
+        # Source path doesn't exist — delete the exact path in destination (not its parent)
+        DEST_PATH="${DEST_DIR:?}/$INPUT"
+        if [ -e "$DEST_PATH" ]; then
+            echo "Removing deleted path: $INPUT"
+            rm -rf "$DEST_PATH"
+        else
+            echo "Skipping non-existent path: $INPUT"
+        fi
     fi
 done
 
