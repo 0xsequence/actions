@@ -134,7 +134,7 @@ if [ -z "$(git status -s)" ]; then
     --connect-timeout 10 \
     -u "${INPUT_USER_NAME}:${API_TOKEN_GITHUB}" \
     -H 'Content-Type: application/json' \
-    "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls?state=open&head=${GITHUB_REPOSITORY_OWNER}:${INPUT_BRANCH}" > pull_request.json
+    "https://api.github.com/repos/${INPUT_REPOSITORY}/pulls?state=open&head=${GITHUB_REPOSITORY_OWNER}:${INPUT_BRANCH}" > pull_request.json
 
   count=$(jq '. | length' pull_request.json)
   if [ "$count" -eq 1 ]
@@ -162,7 +162,7 @@ curl \
   -u "${INPUT_USER_NAME}:${API_TOKEN_GITHUB}" \
   -X POST -H 'Content-Type: application/json' \
   --data "{\"head\":\"$INPUT_BRANCH\",\"base\":\"${INPUT_PR_BASE}\", \"title\": \"${INPUT_PR_TITLE}\", \"body\": \"${PR_DESCRIPTION_ESCAPED}\"}" \
-  "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls" > pull_request.json
+  "https://api.github.com/repos/${INPUT_REPOSITORY}/pulls" > pull_request.json
 
 PR_EXISTS=$(jq '.errors' pull_request.json)
 if [ "$PR_EXISTS" = 'null' ]; then
@@ -178,7 +178,7 @@ curl \
   --connect-timeout 10 \
   -u "${INPUT_USER_NAME}:${API_TOKEN_GITHUB}" \
   -H 'Content-Type: application/json' \
-  "https://api.github.com/repos/{$INPUT_REPOSITORY}/pulls?state=open&head=${GITHUB_REPOSITORY_OWNER}:${INPUT_BRANCH}" > pull_request.json
+  "https://api.github.com/repos/${INPUT_REPOSITORY}/pulls?state=open&head=${GITHUB_REPOSITORY_OWNER}:${INPUT_BRANCH}" > pull_request.json
 
 PR_URL=$(jq -r '.[0].html_url' pull_request.json)
 update_labels $(jq -r '.[0].number' pull_request.json)
