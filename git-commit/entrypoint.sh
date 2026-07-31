@@ -5,25 +5,14 @@ set -e
 update_labels () {
   PR_ID=$1
 
-  IFS=','
-  LABELS=""
-  # Loop over the input labels
-  for LABEL in $INPUT_PR_LABELS; do
-    if [ -z "$LABELS" ]; then
-      LABELS="\"$LABEL\""  # First label, no comma
-    else
-      LABELS="$LABELS, \"$LABEL\""  # Subsequent labels, add a comma
-    fi
-  done
-
-  if [ -n "$LABELS" ]; then
-    # Wrap the labels in square brackets and prepare the JSON payload
-    LABELS_JSON="{\"labels\":[$LABELS]}"
+  if [ -n "$INPUT_PR_LABELS" ]; then
+    LABELS_JSON=$(jq -cn --arg labels "$INPUT_PR_LABELS" \
+      '{labels: ($labels | split(",") | map(select(. != "")))}')
 
     curl \
       -L \
       --connect-timeout 10 \
-      -u "$INPUT_USER_NAME}:$API_TOKEN_GITHUB" \
+      -u "$INPUT_USER_NAME:$API_TOKEN_GITHUB" \
       -X POST \
       -H "Accept: application/vnd.github+json" \
       -d "$LABELS_JSON" \
@@ -155,13 +144,18 @@ git push -u origin --force HEAD:"$INPUT_BRANCH"
 # Exit early if pull request is not enabled.
 [ "$INPUT_PR_CREATE" != true ] && exit 0
 
-PR_DESCRIPTION_ESCAPED="${INPUT_PR_DESCRIPTION//$'\n'/\\n}"
+PR_PAYLOAD=$(jq -n \
+  --arg head "$INPUT_BRANCH" \
+  --arg base "$INPUT_PR_BASE" \
+  --arg title "$INPUT_PR_TITLE" \
+  --arg body "$INPUT_PR_DESCRIPTION" \
+  '{head: $head, base: $base, title: $title, body: $body}')
 
 curl \
   --connect-timeout 10 \
   -u "${INPUT_USER_NAME}:${API_TOKEN_GITHUB}" \
   -X POST -H 'Content-Type: application/json' \
-  --data "{\"head\":\"$INPUT_BRANCH\",\"base\":\"${INPUT_PR_BASE}\", \"title\": \"${INPUT_PR_TITLE}\", \"body\": \"${PR_DESCRIPTION_ESCAPED}\"}" \
+  --data "$PR_PAYLOAD" \
   "https://api.github.com/repos/${INPUT_REPOSITORY}/pulls" > pull_request.json
 
 PR_EXISTS=$(jq '.errors' pull_request.json)
